@@ -14,30 +14,35 @@ c7 = [
     0.3 * ones(extra_rows, n);
 ];
 
-part2a = false;
-part2b = false;
-part2c = false;
-part2d = false;
-part2e = false;
-part2f1 = false;
-part2f2 = false;
-part2g1 = false;
-part2g2 = false;
+part2a = true;
+part2b = true;
+part2c = true;
+part2d = true;
+part2e = true;
+part2f1 = true;
+part2f2 = true;
+part2g1 = true;
+part2g2 = true;
 
 part4a = true;
-part4b = false;
+part4b = true;
 part4c = true;
-part4d = false;
-part4e = false;
-part4f1 = false;
-part4f2 = false;
-part4g1 = false;
-part4g2 = false;
+part4d = true;
+part4e = true;
+part4f1 = true;
+part4f2 = true;
+part4g1 = true;
+part4g2 = true;
 
 
+global times;
 times = zeros(1,20);
+global norms;
 norms = zeros(1,20);
+global diffs;
 diffs = zeros(1,20);
+
+global cmp_result;
 
 % Placed first since other tasks are compared to it
 if part2b
@@ -50,13 +55,8 @@ if part2b
     tic;
     cmp_result = calculate(c7);
     time = toc;
-    fprintf('[Single thread] Time: %.12f\n', time);
-    csvwrite('data/single_thread.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(cmp_result);
-    diffs(tasknum) = diff(cmp_result);
+    record_results(tasknum, time, cmp_result, 'Single thread', 'single_thread.csv');
 end
 
 if part2a
@@ -69,13 +69,8 @@ if part2a
     tic;
     result = calculate(c7);
     time = toc;
-    fprintf('[Default] Time: %.12f\n', time);
-    csvwrite('data/default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Default', 'default.csv');
 end
 
 if part2c
@@ -88,13 +83,8 @@ if part2c
     tic;
     result = calculate_for(c7);
     time = toc;
-    fprintf('[Single thread forloop] Time: %.12f\n', time);
-    csvwrite('data/single_thread_forloop.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Single thread forloop', 'single_thread_forloop.csv');
 end
 
 if part2d
@@ -107,13 +97,8 @@ if part2d
     tic;
     result = calculate_for(c7);
     time = toc;
-    fprintf('[Default forloop] Time: %.12f\n', time);
-    csvwrite('data/default_forloop.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Default forloop', 'default_forloop.csv');
 end
 
 if part2e
@@ -123,24 +108,14 @@ if part2e
     MNCT = maxNumCompThreads('automatic');
     
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Default parallel
     tic;
     result = calculate_parfor(c7);
     time = toc; 
-    fprintf('[Default parallel] Time: %.12f\n', time);
-    csvwrite('data/default_parallel.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Default parallel', 'default_parallel.csv');
 end
 
 if part2f1
@@ -150,24 +125,14 @@ if part2f1
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
     result = calculate_split(c7, p.NumWorkers);
     time = toc; 
-    fprintf('[Even split parallel matrix] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Even split parallel matrix', 'even_parallel_default.csv');
 end
 
 if part2f2
@@ -177,24 +142,14 @@ if part2f2
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
     result = calculate_for_split(c7, p.NumWorkers);
     time = toc; 
-    fprintf('[Even split parallel for] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_for.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Even split parallel for', 'even_parallel_for.csv');
 end
 
 if part2g1
@@ -204,24 +159,14 @@ if part2g1
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
-    result = calculate_split_distributed(c7, p.NumWorkers);
+    result = calculate_split_distributed(c7);
     time = toc; 
-    fprintf('[Even split parallel matrix] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Distributed even split parallel matrix', 'distributed_even_parallel_default.csv');
 end
 
 if part2g2
@@ -231,24 +176,14 @@ if part2g2
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
-    result = calculate_for_split_distributed(c7, p.NumWorkers);
+    result = calculate_for_split_distributed(c7);
     time = toc; 
-    fprintf('[Even split parallel for] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_for.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Distributed even split parallel for', 'distributed_even_parallel_for.csv');
 end
 
 % Reverse and with shorter data
@@ -265,13 +200,8 @@ if part4b
     tic;
     cmp_result = reverse_calculate(c7);
     time = toc;
-    fprintf('[Reverse single thread] Time: %.12f\n', time);
-    csvwrite('data/reverse_single_thread.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, cmp_result, 'Reverse single thread', 'reverse_single_thread.csv');
 end
 
 if part4a
@@ -284,13 +214,8 @@ if part4a
     tic;
     result = reverse_calculate(c7);
     time = toc;
-    fprintf('[Reverse default] Time: %.12f\n', time);
-    csvwrite('data/reverse_default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse default', 'reverse_default.csv');
 end
 
 if part4c
@@ -303,13 +228,8 @@ if part4c
     tic;
     result = reverse_calculate_for(c7);
     time = toc;
-    fprintf('[Reverse single thread forloop] Time: %.12f\n', time);
-    csvwrite('data/reverse_single_thread_forloop.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse single thread forloop', 'reverse_single_thread_forloop.csv');
 end
 
 if part4d
@@ -322,13 +242,8 @@ if part4d
     tic;
     result = reverse_calculate_for(c7);
     time = toc;
-    fprintf('[Reverse default forloop] Time: %.12f\n', time);
-    csvwrite('data/reverse_default_forloop.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse default forloop', 'reverse_default_forloop.csv');
 end
 
 if part4e
@@ -338,24 +253,15 @@ if part4e
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    
+    p = startParpool();
 
     % Default parallel
     tic;
     result = reverse_calculate_parfor(c7);
     time = toc;
-    fprintf('[Reverse default parallel] Time: %.12f\n', time);
-    csvwrite('data/reverse_default_parallel.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse default parallel', 'reverse_default_parallel.csv');
 end
 
 
@@ -366,24 +272,14 @@ if part4f1
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
     result = reverse_calculate_parfor_split(c7, p.NumWorkers);
     time = toc; 
-    fprintf('[Reverse even split parallel matrix] Time: %.12f\n', time);
-    csvwrite('data/reverse_even_parallel_default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse even split parallel matrix', 'reverse_even_parallel_default.csv');
 end
 
 if part4f2
@@ -392,77 +288,82 @@ if part4f2
     % Detect threads
     MNCT = maxNumCompThreads('automatic');
 
-    % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    % Start parallel pool    
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
     result = reverse_calculate_for_split(c7, p.NumWorkers);
     time = toc; 
-    fprintf('[Reverse even split parallel for] Time: %.12f\n', time);
-    csvwrite('data/reverse_even_parallel_for.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse even split parallel for', 'reverse_even_parallel_for.csv');
 end
 
-if part2g1
+if part4g1
     tasknum = 17;
 
     % Detect threads
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
-    p = gcp('nocreate');
-
-    if isempty(p)
-        parpool;
-        p = gcp('nocreate');
-    end
+    p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
-    result = reverse_calculate_split_distributed(c7, p.NumWorkers);
+    result = reverse_calculate_split_distributed(c7);
     time = toc; 
-    fprintf('[Even split parallel matrix] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_default.csv', result);
 
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
+    record_results(tasknum, time, result, 'Reverse even split parallel matrix', 'reverse_even_parallel_default.csv');
 end
 
-if part2g2
+if part4g2
     tasknum = 18;
 
     % Detect threads
     MNCT = maxNumCompThreads('automatic');
 
     % Start parallel pool
+    p = startParpool();
+
+    % Parallel with even split and matrix multiplication
+    tic
+    result = reverse_calculate_for_split_distributed(c7);
+    time = toc; 
+
+    record_results(tasknum, time, result, 'Reverse even split parallel for', 'reverse_even_parallel_for.csv');
+end
+
+% Save all the remaining recorded data
+csvwrite('data/times.csv', times);
+csvwrite('data/norms.csv', norms);
+csvwrite('data/diffs.csv', diffs);
+
+% Function definitions
+function record_results(tasknum, time, result, printlabel, filename)
+    global times;
+    global norms;
+    global diffs;
+    global cmp_result;
+
+    fprintf('[%s] Time: %.12f\n', printlabel, time);
+    filepath = sprintf('data/%s', filename);
+    csvwrite(filepath, result);
+
+    if cmp_result == 0
+        cmp_result = result;
+    end
+
+    % Save results
+    times(tasknum) = time;
+    norms(tasknum) = norm(cmp_result);
+    diffs(tasknum) = norm(cmp_result);
+end
+
+function p = startParpool()
     p = gcp('nocreate');
 
     if isempty(p)
         parpool;
         p = gcp('nocreate');
     end
-
-    % Parallel with even split and matrix multiplication
-    tic
-    result = reverse_calculate_for_split_distributed(c7, p.NumWorkers);
-    time = toc; 
-    fprintf('[Even split parallel for] Time: %.12f\n', time);
-    csvwrite('data/even_parallel_for.csv', result);
-
-    % Save results
-    times(tasknum) = time;
-    norms(tasknum) = norm(result);
-    diffs(tasknum) = diff(result - cmp_result);
 end
