@@ -1,4 +1,4 @@
-reduction = 0.1;
+reduction = 1;
 
 n = 1000 * reduction;
 
@@ -14,15 +14,16 @@ c7 = [
     0.3 * ones(extra_rows, n);
 ];
 
-part2a = true;
-part2b = true;
-part2c = true;
-part2d = true;
-part2e = true;
-part2f1 = true;
-part2f2 = true;
-part2g1 = true;
-part2g2 = true;
+part2a = false;
+part2b = false;
+part2c = false;
+part2d = false;
+part2e = false;
+part2f1 = false;
+part2f2 = false;
+part2g1 = false;
+% Disabled since it gets stuck forever
+part2g2 = false;
 
 part4a = true;
 part4b = true;
@@ -32,8 +33,8 @@ part4e = true;
 part4f1 = true;
 part4f2 = true;
 part4g1 = true;
-part4g2 = true;
-
+% Disabled since it gets stuck forever
+part4g2 = false;
 
 global times;
 times = zeros(1,20);
@@ -44,12 +45,14 @@ diffs = zeros(1,20);
 
 global cmp_result;
 
+MNCT = maxNumCompThreads('automatic');
+
 % Placed first since other tasks are compared to it
 if part2b
     tasknum = 2;
 
     % Single thread
-    MNCT = maxNumCompThreads(1);
+    maxNumCompThreads(1);
 
     % Single thread
     tic;
@@ -63,7 +66,7 @@ if part2a
     tasknum = 1;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Default
     tic;
@@ -77,7 +80,7 @@ if part2c
     tasknum = 3;
 
     % Single thread
-    MNCT = maxNumCompThreads(1);
+    maxNumCompThreads(1);
 
     % With forloop
     tic;
@@ -91,7 +94,7 @@ if part2d
     tasknum = 4;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % With forloop
     tic;
@@ -105,10 +108,10 @@ if part2e
     tasknum = 5;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
     
     % Start parallel pool
-    p = startParpool();
+    startParpool();
 
     % Default parallel
     tic;
@@ -122,7 +125,7 @@ if part2f1
     tasknum = 6;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -139,7 +142,7 @@ if part2f2
     tasknum = 7;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -156,7 +159,7 @@ if part2g1
     tasknum = 8;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -173,7 +176,7 @@ if part2g2
     tasknum = 9;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -187,14 +190,15 @@ if part2g2
 end
 
 % Reverse and with shorter data
-c7 = c7(:, 1:50);
+% Bigger than 15.000 rows kills my matlab process so it cannot run
+c7 = c7(1:10000, 1:50);
 
 % Placed first since other tasks are compared to it
 if part4b
     tasknum = 11;
 
     % Single thread
-    MNCT = maxNumCompThreads(1);
+    maxNumCompThreads(1);
 
     % Single thread
     tic;
@@ -208,7 +212,7 @@ if part4a
     tasknum = 10;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Default
     tic;
@@ -222,7 +226,7 @@ if part4c
     tasknum = 12;
 
     % Single thread
-    MNCT = maxNumCompThreads(1);
+    maxNumCompThreads(1);
 
     % With forloop
     tic;
@@ -236,7 +240,7 @@ if part4d
     tasknum = 13;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % With forloop
     tic;
@@ -250,11 +254,11 @@ if part4e
     tasknum = 14;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     
-    p = startParpool();
+    startParpool();
 
     % Default parallel
     tic;
@@ -269,14 +273,14 @@ if part4f1
     tasknum = 15;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
 
     % Parallel with even split and matrix multiplication
     tic
-    result = reverse_calculate_parfor_split(c7, p.NumWorkers);
+    result = reverse_calculate_split(c7, p.NumWorkers);
     time = toc; 
 
     record_results(tasknum, time, result, 'Reverse even split parallel matrix', 'reverse_even_parallel_default.csv');
@@ -286,7 +290,7 @@ if part4f2
     tasknum = 16;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool    
     p = startParpool();
@@ -303,7 +307,7 @@ if part4g1
     tasknum = 17;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -313,14 +317,14 @@ if part4g1
     result = reverse_calculate_split_distributed(c7);
     time = toc; 
 
-    record_results(tasknum, time, result, 'Reverse even split parallel matrix', 'reverse_even_parallel_default.csv');
+    record_results(tasknum, time, result, 'Reverse distributed even split parallel matrix', 'reverse_distributed_even_parallel_default');
 end
 
 if part4g2
     tasknum = 18;
 
     % Detect threads
-    MNCT = maxNumCompThreads('automatic');
+    maxNumCompThreads(MNCT);
 
     % Start parallel pool
     p = startParpool();
@@ -330,7 +334,7 @@ if part4g2
     result = reverse_calculate_for_split_distributed(c7);
     time = toc; 
 
-    record_results(tasknum, time, result, 'Reverse even split parallel for', 'reverse_even_parallel_for.csv');
+    record_results(tasknum, time, result, 'Reverse distributed even split parallel for', 'reverse_distributed_even_parallel_for.csv');
 end
 
 % Save all the remaining recorded data
@@ -345,18 +349,33 @@ function record_results(tasknum, time, result, printlabel, filename)
     global diffs;
     global cmp_result;
 
-    fprintf('[%s] Time: %.12f\n', printlabel, time);
-    filepath = sprintf('data/%s', filename);
-    csvwrite(filepath, result);
-
     if cmp_result == 0
         cmp_result = result;
     end
 
+    % Truncate the result to 1000x1000 or it gets stuck forever because memory problem
+    if(size(cmp_result, 1) > 1000)
+        cmp_result = cmp_result(1:1000, 1:1000);
+    end
+
+    % Truncate the result to 1000x1000 or it gets stuck forever because memory problem
+    if(size(result, 1) > 1000)
+        result = result(1:1000, 1:1000);
+    end
+
+    normVal = norm(cmp_result);
+    diffVal = norm(cmp_result - result);    
+
+    fprintf('[%s] Time: %.12f\n', printlabel, time);
+    fprintf('[%s] Norm: %.12f\n', printlabel, normVal);
+    fprintf('[%s] Diff: %.12f\n', printlabel, diffVal);
+    % filepath = sprintf('data/%s', filename);
+    % csvwrite(filepath, result(100, 100));
+
     % Save results
     times(tasknum) = time;
-    norms(tasknum) = norm(cmp_result);
-    diffs(tasknum) = norm(cmp_result);
+    norms(tasknum) = normVal;
+    diffs(tasknum) = diffVal;
 end
 
 function p = startParpool()

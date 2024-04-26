@@ -5,7 +5,7 @@ function result = calculate_for(inputMat)
     % Preset a matrix with zeroes so memory is only allocated once
     result_size = size(inputMat, 2);
     tempResult = zeros(result_size, result_size);
-
+    
     for i = 1:result_size
         for j = 1:result_size
             iterResult = 0;

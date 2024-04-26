@@ -12,6 +12,11 @@ function result = calculate_split(inputMat, numWorkers)
     % Define all ends of ranges for workers
     workedRngEnd = ones(1, numWorkers + 1);
     for i = 1:numWorkers
+        if i == numWorkers
+            workedRngEnd(1, i+1) = rowSize;
+            break;
+        end
+        
         workedRngEnd(1, i+1) = workerParts * i;
     end
 

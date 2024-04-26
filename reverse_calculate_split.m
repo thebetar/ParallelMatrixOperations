@@ -3,15 +3,20 @@
 
 function result = reverse_calculate_split(inputMat, numWorkers)
     % Define sizes
-    rowSize = size(inputMat, 1);
-    resultSize = size(inputMat, 2);
+    colSize = size(inputMat, 2);
+    resultSize = size(inputMat, 1);
     
     % Divide all the rows by the amount of workers available
-    workerParts = rowSize / numWorkers;
+    workerParts = floor(colSize / numWorkers);
 
     % Define all ends of ranges for workers
     workedRngEnd = ones(1, numWorkers + 1);
     for i = 1:numWorkers
+        if i == numWorkers
+            workedRngEnd(1, i+1) = colSize;
+            break;
+        end
+
         workedRngEnd(1, i+1) = workerParts * i;
     end
 
@@ -21,7 +26,7 @@ function result = reverse_calculate_split(inputMat, numWorkers)
     % Parallel iterate over all workers to do calculations
     parfor i = 1:numWorkers
         % Get rows that belong to worker
-        part = inputMat(workedRngEnd(i):workedRngEnd(i+1), :);
+        part = inputMat(:, workedRngEnd(i):workedRngEnd(i+1));
         % Get result from rows
         workerResults{i} = reverse_calculate(part);
     end

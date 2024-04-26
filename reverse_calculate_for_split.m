@@ -3,11 +3,11 @@
 
 function result = calculate_parfor_split(inputMat, numWorkers)
     % Define sizes
-    rowSize = size(inputMat, 1);
-    resultSize = size(inputMat, 2);
+    colSize = size(inputMat, 2);
+    resultSize = size(inputMat, 1);
     
     % Divide all the rows by the amount of workers available
-    workerParts = rowSize / numWorkers;
+    workerParts = colSize / numWorkers;
 
     % Define all ends of ranges for workers
     workedRngEnd = ones(1, numWorkers + 1);
@@ -21,7 +21,7 @@ function result = calculate_parfor_split(inputMat, numWorkers)
     % Parallel iterate over all workers to do calculations
     parfor i = 1:numWorkers
         % Get rows that belong to worker
-        part = inputMat(workedRngEnd(i):workedRngEnd(i+1), :);
+        part = inputMat(:, workedRngEnd(i):workedRngEnd(i+1));
         % Get result from rows
         workerResults{i} = reverse_calculate_for(part);
     end
