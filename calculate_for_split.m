@@ -1,7 +1,7 @@
 % Sizes in comments are rows by cols
 % This function simulates the matrix dot product of sin(log(matA + 2.7))' * log(cos(matA) + 1.7);
 
-function result = calculate_parfor_split(inputMat, numWorkers)
+function result = calculate_for_split(inputMat, numWorkers)
     % Define sizes
     rowSize = size(inputMat, 1);
     resultSize = size(inputMat, 2);

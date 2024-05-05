@@ -1,4 +1,4 @@
-eduction = 1;
+reduction = 0.5;
 
 n = 1000 * reduction;
 
@@ -14,24 +14,24 @@ c7 = [
     0.3 * ones(extra_rows, n);
 ];
 
-part2a = true;
-part2b = true;
-part2c = true;
-part2d = true;
-part2e = true;
-part2f1 = true;
-part2f2 = true;
-part2g1 = true;
+part2a = false;
+part2b = false;
+part2c = false;
+part2d = false;
+part2e = false;
+part2f1 = false;
+part2f2 = false;
+part2g1 = false;
 % Disabled since it gets stuck forever
 part2g2 = false;
 
 part4a = true;
 part4b = true;
-part4c = true;
-part4d = true;
-part4e = true;
-part4f1 = true;
-part4f2 = true;
+part4c = false;
+part4d = false;
+part4e = false;
+part4f1 = false;
+part4f2 = false;
 part4g1 = true;
 % Disabled since it gets stuck forever
 part4g2 = false;
@@ -191,7 +191,7 @@ end
 
 % Reverse and with shorter data
 % Bigger than 15.000 rows kills my matlab process so it cannot run
-c7 = c7(1:10000, 1:50);
+c7 = c7(:, 1:50);
 
 % Placed first since other tasks are compared to it
 if part4b
